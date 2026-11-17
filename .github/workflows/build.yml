@@ -1,0 +1,37 @@
+
+name: Build Shiloh WebAssembly
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-web:
+    name: Compile browser version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Build WebAssembly
+        run: |
+          chmod +x port/web/build.sh
+          port/web/build.sh
+
+      - name: Upload WebAssembly artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shiloh-web
+          path: |
+            port/web/www/
+          if-no-files-found: error
